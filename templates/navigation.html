@@ -1,0 +1,8 @@
+<div class="flex flex-wrap justify-center space-x-4">
+    {% for direction, location in directions.items() %}
+        <form method="POST" class="mt-4">
+            <input type="hidden" name="direction" value="{{ direction }}">
+            <input type="submit" value="Go {{ direction }}" class="w-32 px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white font-bold rounded">
+        </form>
+    {% endfor %}
+</div>

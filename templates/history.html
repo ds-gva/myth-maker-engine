@@ -1,0 +1,33 @@
+<style>
+    /* Width */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    /* Track */
+    ::-webkit-scrollbar-track {
+        background: lightgray; 
+    }
+    
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+        background: gray; 
+    }
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background: darkgray; 
+    }
+</style>
+
+<h2 class="text-2xl mb-4">History</h2>
+<div class="h-64 overflow-auto" style="scrollbar-color: gray lightgray; scrollbar-width: thin;">
+    <ul class="list-none list-inside space-y-2">
+        {% for item in history|reverse %}
+            <li class="bg-gray-700 p-4 rounded-lg shadow-lg">
+                You went <span class="font-bold text-blue-500">{{ item.direction }}</span> to 
+                <span class="font-bold text-green-500">{{ item.location }}</span>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
