@@ -2,21 +2,28 @@
 <head>
     <title>Text Adventure Game</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+    <script src="{{ url_for('static', filename='js/item.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/inventory.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/room.js') }}"></script>
+
 </head>
 <body class="bg-gray-800 text-white flex items-center justify-center min-h-screen">
     <div class="space-y-6 w-1/2">
         <div class="bg-gray-700 p-6 rounded-lg shadow-lg flex-grow">
             {% include 'room.html' %}
         </div>
-        <div class="bg-gray-600 p-4 rounded-lg shadow-lg">
+        <div class="bg-gray-600 p-4 rounded-lg shadow-lg flex flex-col items-center justify-center">
+            <h2 class="text-white font-bold">Move</h2>
             {% include 'navigation.html' %}
         </div>
         <div class="bg-gray-500 p-4 rounded-lg shadow-lg">
             {% include 'history.html' %}
         </div>
-        <form method="POST" action="/save">
-            <input type="submit" value="Save Game" class="px-4 py-2 bg-green-500 hover:bg-green-700 text-white font-bold rounded">
-        </form>
+        <!-- Add the inventory box here -->
+        <div class="bg-gray-400 p-4 rounded-lg shadow-lg w-1/4 fixed right-0 top-0 m-4 overflow-auto" id="inventory">
+            {% include 'inventory.html' %}
+        </div>
     </div>
 </body>
 </html>

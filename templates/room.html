@@ -1,2 +1,5 @@
-<h1 class="text-4xl">{{ location }}</h1>
-<p class="text-xl">{{ description }}</p>
+<div data-room-name="{{ room_id }}" class="bg-gray-700 p-6 rounded-lg shadow-lg flex-grow">
+    <h1 class="text-4xl">{{ room_name }}</h1>
+    <p id="room-description" class="text-xl"></p> <!-- Injected description will appear here -->
+</div>
+{% include 'item.html' %}

@@ -1,1 +1,10 @@
-{"location": "Hoth", "history": []}
+{
+    "characters": {
+        "player": {
+            "name": "PlayerName",
+            "location": "home",
+            "inventory": []
+        }
+    },
+    "history": []
+}
