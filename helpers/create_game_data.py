@@ -174,4 +174,4 @@ def create_game_data(map_filename, state_filename, dialogues_filename):
         json.dump(dialogues, f, indent=4)
 
 if __name__ == "__main__":
-    create_game_data("game_data/game_map.json", "game_data/initial_state.json", "game_data/dialogues.json")
+    create_game_data("./game_data/game_map.json", "./game_data/initial_state.json", "game_data/dialogues.json")
