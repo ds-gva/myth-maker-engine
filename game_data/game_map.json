@@ -51,8 +51,15 @@
     },
     "Outside": {
         "id": "outside1",
-        "base_description": "You step outside. It's a cold, clear night. The stars are shining brightly. There is a small shed to the east.",
-        "dynamic_text": {},
+        "base_description": "You step outside. It's a cold, clear night. The stars are shining brightly. There is a small shed to the east. {tree1_description}",
+        "dynamic_text": {
+            "tree1_description": {
+                "default": "There is a patch of [tree1] in the corner of the garden.",
+                "conditions": {
+                    "trees_chopped": "There is a pile of chopped wood in the corner of the garden."
+                }
+            }
+        },
         "directions": {
             "south": {
                 "direction_id": "home"
@@ -62,17 +69,26 @@
             }
         },
         "state": {},
-        "interactive_items": {}
+        "interactive_items": {
+            "fir trees": {
+                "id": "tree1",
+                "description": "A patch of fir-trees, about my height.",
+                "actions": {
+                    "chop_trees": {
+                        "visible_in_room": "true"
+                    }
+                }
+            }
+        }
     },
     "Shed": {
         "id": "shed1",
-        "base_description": "You are in a small shed. It's dark and dusty, with tools scattered around. {hammer1_description}",
+        "base_description": "You are in a small shed. It's dark and dusty, with tools scattered around. {axe1_description}",
         "dynamic_text": {
-            "hammer1_description": {
-                "default": "I can't see much.",
+            "axe1_description": {
+                "default": "I can see an [axe1].",
                 "conditions": {
-                    "light_on": "I can see a [hammer1].",
-                    "light_on_hammer_taken": "These other tools aren't really useful."
+                    "axe_taken": "Most of these tools are too old to be used."
                 }
             }
         },
@@ -82,20 +98,18 @@
             }
         },
         "state": {
-            "light_on": "true",
-            "light_on_hammer_taken": "false"
+            "axe_taken": "false"
         },
         "npcs": {},
         "interactive_items": {
-            "hammer": {
-                "id": "hammer1",
-                "description": "It's a heavy hammer.",
+            "axe": {
+                "id": "axe1",
+                "description": "It's a rusty axe, helpful for chopping wood.",
                 "actions": {
                     "pick_up": {
                         "consequence": "set_state",
                         "state_change": {
-                            "light_on_hammer_taken": "true",
-                            "light_on": "false"
+                            "axe_taken": "true"
                         },
                         "visible_in_room": "true"
                     },
@@ -104,7 +118,7 @@
                     }
                 },
                 "conditions": {
-                    "light_on": "true"
+                    "axe_taken": "false"
                 }
             }
         }

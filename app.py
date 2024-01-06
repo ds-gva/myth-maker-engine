@@ -1,5 +1,5 @@
-from flask import Flask, request, render_template, redirect, url_for, jsonify
-from game import Game, Player
+from flask import Flask, request, render_template, jsonify
+from engine.game import Game
 
 app = Flask(__name__)
 game = Game('game_data/initial_state.json', 'game_data/game_map.json')
