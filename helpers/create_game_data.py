@@ -38,14 +38,20 @@ def create_game_data(map_filename, state_filename, dialogues_filename):
     game_map = {
         "Home": {
             "id": "home",
-            "base_description": "You are at home with your [mother1] and sister. The house is warm and cozy. At the north of the room there is a door to go outside, it's unlocked. {scarf1_description}.",
+            "base_description": "You are at home with your [mother1] and sister. The house is warm and cozy. At the north of the room there is a door to go outside, it's unlocked. {scarf1_description}. {coins_description}",
             "dynamic_text": {
                 "scarf1_description": {
                     "default": "A [scarf1] is folded on a chair by the door",
                     "conditions": {
                         "scarf1_taken": "The chair by the door is empty"
-                    }
-                }
+                        }
+                    },
+                "coins_description": {
+                    "default": "There are [resource: coins | 10 | coins | coins1_taken] on the table.",
+                    "conditions": {
+                        "coins1_taken": "There is nothing on the table."
+                        }
+                    },
             },
             "directions": {
                 "north": {
@@ -56,7 +62,8 @@ def create_game_data(map_filename, state_filename, dialogues_filename):
                 }
             },
             "state": {
-                "scarf1_taken": 'false'
+                "scarf1_taken": 'false',
+                "coins1_taken": 'false'
             },
             "npcs": {
                 "mother": {
@@ -84,7 +91,7 @@ def create_game_data(map_filename, state_filename, dialogues_filename):
                         "scarf1_taken": 'false'
                     }
                 }
-            }
+            },
         },
         "Outside": {
             "id": "outside1",
@@ -106,13 +113,19 @@ def create_game_data(map_filename, state_filename, dialogues_filename):
                     "direction_id": "shed1"
                 }
             },
-            "state": {},
+            "state": {
+                "trees_chopped": "false"
+            },
             "interactive_items": {
                 "fir trees": {
                     "id": "tree1",
                     "description": "A patch of fir-trees, about my height.",
                     "actions": {
                         "chop_trees": {
+                            "consequence": "set_state",
+                                "state_change": {
+                                    "trees_chopped": 'true'
+                                },
                             "visible_in_room": "true"
                         },
                     }

@@ -1,3 +1,5 @@
+import re
+
 class Room:
     def __init__(self, name, room_id, base_description, directions, conditions, dynamic_text, state, interactive_items, npcs):
         self.name = name
@@ -21,10 +23,12 @@ class Room:
                     text = condition_text
                     break
             description = description.replace(placeholder, text)
+
         return description
 
     def get_parsed_description(self):
         parsed_description = self.get_description()
+
         interactive_items_data = {}
         for item_id, item in self.interactive_items.items():
             interactive_items_data[item_id] = {
@@ -44,7 +48,19 @@ class Room:
                 'name': item.name,
             }
 
-        return parsed_description, interactive_items_data, npcs_data, dropped_items_data
+        resources_data = {}
+        resource_tags = re.findall(r'\[resource: .+?]', parsed_description)
+        for tag in resource_tags:
+            _, resource_id, resource_quantity, resource_text, resource_state_change = re.split(r': |\| ', tag.strip('[]'))
+            resource_quantity = int(resource_quantity)
+
+            resources_data[resource_id] = {
+                'quantity': resource_quantity,
+                'text': resource_text,
+                'state_change': resource_state_change
+            }
+
+        return parsed_description, interactive_items_data, npcs_data, dropped_items_data, resources_data
         
     def get_interactive_items(self):
         return self.interactive_items
@@ -54,3 +70,7 @@ class Room:
 
     def get_dropped_items(self):
         return self.dropped_items
+    
+    def room_resource_state_change(self, resource_state_change):
+        self.state[resource_state_change] = 'true'
+        print(self.state['coins1_taken'])

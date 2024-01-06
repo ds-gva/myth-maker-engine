@@ -1,17 +1,44 @@
 from flask import Flask, request, render_template, jsonify
 from engine.game import Game
+from engine.items.item_actions import ItemActions
+from engine.characters.resource import Resource
 
 app = Flask(__name__)
 game = Game('game_data/initial_state.json', 'game_data/game_map.json')
 player = game.get_character('PlayerName')
 
+resources_data =  [{
+            "id": "wood",
+            "name": "wood",
+            "quantity": 0
+        },
+        {
+            "id": "coins",
+            "name": "coin",
+            "quantity": 0
+        }
+]
+
+# Populate resources
+for resource_data in resources_data:
+    resource = Resource(resource_data['id'], resource_data['name'], resource_data['quantity'])
+    player.resources.add_resource(resource)
+
+# Define a new action
+def chop_trees(game, character, item):
+    player_inventory = character.get_inventory(get_capacity=False)
+    if player_inventory.contains_item_by_id('axe1'):
+        return {"success": True, "message": "You successfully chopped the trees."}
+    else:
+        return {"success": False, "message": "You need an axe to chop the trees."}
+
+ItemActions.register_action("chop_trees", chop_trees)
+
 @app.route('/', methods=['GET', 'POST'])
 def game_route():
     description = None
     interactive_items = None
-
     current_location = player.location
-    print(current_location)
     current_room = game.map.get_room_by_id(current_location)
 
     if request.method == 'POST':
@@ -39,9 +66,9 @@ def game_route():
 @app.route('/get_room_description/<room_id>', methods=['POST'])
 def get_room_description_route(room_id):
     current_room = game.map.get_room_by_id(room_id)
-    description, interactive_items_data, npcs_data, dropped_items_data = current_room.get_parsed_description()
+    description, interactive_items_data, npcs_data, dropped_items_data, resources_data = current_room.get_parsed_description()
 
-    return jsonify(description=description, interactive_items=interactive_items_data, npcs=npcs_data, dropped_items=dropped_items_data)
+    return jsonify(description=description, interactive_items=interactive_items_data, npcs=npcs_data, dropped_items=dropped_items_data, resources_data=resources_data)
 
 @app.route('/inspect_item/<item_id>', methods=['POST'])
 def inspect_route(item_id):
@@ -55,9 +82,31 @@ def interact_route(item_id, action_name):
 
 @app.route('/inventory', methods=['GET'])
 def inventory_route():
-    inventory_capacity, inventory = player.get_inventory(as_dict=True)
-    inventory_list = [{'name': item['name'], 'item_id': item['item_id']} for item in inventory]
+    inventory_capacity, inventory = player.get_inventory()
+    inventory_list = []
+    for item in inventory.items:
+        inventory_list.append({'name': item.name, 'item_id': item.item_id, 'quantity': item.quantity})
     return jsonify(inventory_capacity=inventory_capacity, inventory=inventory_list)
+
+@app.route('/resources', methods=['GET'])
+def resources_route():
+    resources = player.resources.get_all_resources()
+    resources_list = []
+    for resource in resources:
+        resources_list.append({'id': resource.id, 'name': resource.name, 'quantity': resource.quantity})
+    return jsonify(resources=resources_list)
+
+@app.route('/collect_resources/<resource_id>/<quantity>', methods=['POST'])
+def collect_resources_route(resource_id, quantity):
+    result = player.resources.update_resource_quantity(resource_id, int(quantity))
+    return jsonify(result=result)
+
+@app.route('/collect_resources/<resource_id>/<quantity>/<room_id>/<state_change>', methods=['POST'])
+def collect_resources_state_change_route(resource_id, quantity, room_id, state_change):
+    result = player.resources.update_resource_quantity(resource_id, int(quantity))
+    current_room = game.map.get_room_by_id(room_id)
+    current_room.room_resource_state_change(state_change)
+    return jsonify(result=result)
 
 if __name__ == '__main__':
     app.run(debug=True)

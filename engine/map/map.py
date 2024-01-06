@@ -8,7 +8,6 @@ class Map:
 
     def get_room_by_id(self, room_id):
         room = self.rooms.get(room_id)
-        print(room)
         if not room:
             raise ValueError(f"No room with id {room_id}")
         return room

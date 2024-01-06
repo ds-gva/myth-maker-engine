@@ -1,11 +1,13 @@
 <html>
 <head>
     <title>Text Adventure Game</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
    
     <script src="{{ url_for('static', filename='js/game.js') }}"></script>
     <script src="{{ url_for('static', filename='js/item.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/resources.js') }}"></script>
     <script src="{{ url_for('static', filename='js/inventory.js') }}"></script>
+
     <script src="{{ url_for('static', filename='js/room.js') }}"></script>
 
 
@@ -17,6 +19,7 @@
             <div class="tabs flex space-x-4">
                 <button class="tab-button py-2 px-4 text-yellow-500 border-b-2 border-yellow-500" data-tab="explore">Explore</button>
                 <button class="tab-button py-2 px-4 text-white border-b-2 border-transparent" data-tab="inventory">Inventory</button>
+                <button class="tab-button py-2 px-4 text-white border-b-2 border-transparent" data-tab="resources">Resources</button>
             </div>
             <div class="tab-content active mt-4" id="explore">
                 {% include 'room.html' %}
@@ -33,6 +36,9 @@
             </div>
             <div class="tab-content mt-4 hidden" id="inventory">
                 {% include 'inventory.html' %}
+            </div>
+            <div class="tab-content mt-4 hidden" id="resources">
+                {% include 'resources_inventory.html' %}
             </div>
         </div>
     </div>

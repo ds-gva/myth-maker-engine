@@ -1,53 +1,27 @@
-class ItemActions:
-    @staticmethod
-    def pick_up(game, character, item):
-        if character.add_to_inventory(item):
-            item.owner = character
-            room = game.map.get_room_by_id(character.location)
-            if item.dropped:
-                del room.dropped_items[item.item_id]
-                item.dropped = False
-            else:
-                del room.interactive_items[item.item_id]
-        else:
-            return "You can't carry any more items."
-        
-    @staticmethod
-    def drop(game, character, item):
-        character.remove_from_inventory(item)
-        room = game.map.get_room_by_id(character.location)
-        item.owner = room
-        item.dropped = True
-        room.dropped_items[item.item_id] = item
-        return f"You dropped the {item.name}."
+from engine.items.item_actions import ItemActions
     
 class Item:
-    ACTIONS = {
-        'pick_up': ItemActions.pick_up,
-        'drop': ItemActions.drop,
-        # Add more actions here
-    }
-
-    def __init__(self, name, item_id, description, owner=None, actions=None):
+    def __init__(self, name, item_id, description, owner=None, actions=None, stackable=False, quantity=1):
         self.name = name
         self.item_id = item_id
         self.description = description
         self.owner = owner
         self.actions = actions
-        self.action_functions = {action_name: self.ACTIONS.get(action_name) for action_name in actions if self.ACTIONS.get(action_name)} if actions else {}
+        self.action_functions = {action_name: ItemActions.actions.get(action_name) for action_name in actions if ItemActions.actions.get(action_name)} if actions else {}
+        self.stackable = stackable
+        self.quantity = quantity
         self.dropped = False
+
+    def inspect(self):
+        return self.name, self.description, self.get_actions(only_room=True)
 
     def interact(self, game, character, action_name):
         if not self.actions:
             return self.description
-
-        action_result = self.perform_action(game, character, action_name)
-        self.handle_consequence(game, character, action_name)
-
+        action_result = ItemActions.perform_action(action_name, game, character, self)
+        if action_result['success']:
+            self.handle_consequence(game, character, action_name)
         return action_result
-
-    def perform_action(self, game, character, action_name):
-        return self.action_functions[action_name](game, character, self)
 
     def handle_consequence(self, game, character, action_name):
         action = self.actions[action_name]
@@ -59,9 +33,6 @@ class Item:
         state_to_change = action['state_change']
         for key, value in state_to_change.items():
             room.state[key] = value
-
-    def inspect(self):
-        return self.name, self.description, self.get_actions(only_room=True)
 
     def get_actions(self, only_room=False):
         if only_room:

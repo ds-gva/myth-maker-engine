@@ -5,8 +5,11 @@ class Inventory:
 
     def add_item(self, item):
         if len(self.items) < self.capacity:
-            self.items.append(item)
-            print(f'Added {item.item_id} to inventory')
+            if item.stackable and self.contains_item_by_id(item.item_id):
+                existing_item = self.get_item_by_id(item.item_id)
+                existing_item.quantity += item.quantity
+            else:
+                self.items.append(item)
             return True
         else:
             return False  # Inventory is full
@@ -14,10 +17,9 @@ class Inventory:
     def remove_item(self, item):
         if item in self.items:
             self.items.remove(item)
-            print(f'Removed {item.name} from inventory')
             return True
         else:
-            return False  # Item not found in inventory
+            return False
 
     def get_items(self):
         return self.items
@@ -30,3 +32,6 @@ class Inventory:
 
     def contains_item(self, item):
         return item in self.items
+    
+    def contains_item_by_id(self, item_id):
+        return any(item.item_id == item_id for item in self.items)

@@ -33,10 +33,14 @@ function interactWithItem(itemId, action) {
     fetch('/interact_with_item/' + itemId + '/' + action, { method: 'POST' })
     .then(response => response.json())
     .then(data => {
-        console.log(data)
-        var roomName = document.querySelector('div[data-room-name]').dataset.roomName;
+        
+        var roomId = document.querySelector('div[data-room-id]').dataset.roomId;
         fetchAndUpdateInventory();
-        getRoomDescription(roomName);
-        clearInspectItem();
+        getRoomDescription(roomId);
+        alert(data.result.message);
+        if (data.result.success) {
+            clearInspectItem();
+        }
+        
     });
 }
