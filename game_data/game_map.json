@@ -1,7 +1,7 @@
 {
     "Home": {
         "id": "home",
-        "base_description": "You are at home with your mother and sister. The house is warm and cozy. At the north of the room there is a door to go outside, it's unlocked. {scarf1_description}.",
+        "base_description": "You are at home with your [mother1] and sister. The house is warm and cozy. At the north of the room there is a door to go outside, it's unlocked. {scarf1_description}.",
         "dynamic_text": {
             "scarf1_description": {
                 "default": "A [scarf1] is folded on a chair by the door",
@@ -21,6 +21,12 @@
         "state": {
             "scarf1_taken": "false"
         },
+        "npcs": {
+            "mother": {
+                "id": "mother1",
+                "name": "Mother"
+            }
+        },
         "interactive_items": {
             "scarf": {
                 "id": "scarf1",
@@ -30,7 +36,11 @@
                         "consequence": "set_state",
                         "state_change": {
                             "scarf1_taken": "true"
-                        }
+                        },
+                        "visible_in_room": "true"
+                    },
+                    "drop": {
+                        "visible_in_room": "false"
                     }
                 },
                 "conditions": {
@@ -56,7 +66,7 @@
     },
     "Shed": {
         "id": "shed1",
-        "base_description": "You are in a small shed. It's dark and dusty, with tools scattered around. {hammer1_description}.",
+        "base_description": "You are in a small shed. It's dark and dusty, with tools scattered around. {hammer1_description}",
         "dynamic_text": {
             "hammer1_description": {
                 "default": "I can't see much.",
@@ -75,6 +85,7 @@
             "light_on": "true",
             "light_on_hammer_taken": "false"
         },
+        "npcs": {},
         "interactive_items": {
             "hammer": {
                 "id": "hammer1",
@@ -85,7 +96,11 @@
                         "state_change": {
                             "light_on_hammer_taken": "true",
                             "light_on": "false"
-                        }
+                        },
+                        "visible_in_room": "true"
+                    },
+                    "drop": {
+                        "visible_in_room": "false"
                     }
                 },
                 "conditions": {

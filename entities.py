@@ -1,13 +1,15 @@
 class Room:
-    def __init__(self, name, room_id, base_description, directions, conditions, dynamic_text, state, interactive_items):
+    def __init__(self, name, room_id, base_description, directions, conditions, dynamic_text, state, interactive_items, npcs):
         self.name = name
         self.id = room_id
         self.base_description = base_description
         self.directions = directions
-        self.conditions = conditions
-        self.dynamic_text = dynamic_text
-        self.state = state
+        self.conditions = conditions or {}
+        self.dynamic_text = dynamic_text or {}
+        self.state = state or {}
         self.interactive_items = interactive_items
+        self.npcs = npcs
+        self.dropped_items = {}
         
     def get_description(self):
         description = self.base_description
@@ -29,13 +31,29 @@ class Room:
                 'name': item.name,
                 'description': item.description
             }
-        return parsed_description, interactive_items_data
+
+        npcs_data = {}
+        for npc_id, npc in self.npcs.items():
+            npcs_data[npc_id] = {
+                'name': npc.name
+            }
+        
+        dropped_items_data = {}
+        for item_id, item in self.dropped_items.items():
+            dropped_items_data[item_id] = {
+                'name': item.name,
+            }
+
+        return parsed_description, interactive_items_data, npcs_data, dropped_items_data
         
     def get_interactive_items(self):
         return self.interactive_items
 
     def set_description(self, description):
         self.description = description
+
+    def get_dropped_items(self):
+        return self.dropped_items
 
 class Inventory:
     def __init__(self, capacity):
@@ -60,6 +78,9 @@ class Inventory:
 
     def get_items(self):
         return self.items
+    
+    def get_capacity(self):
+        return self.capacity
 
     def is_full(self):
         return len(self.items) >= self.capacity
@@ -82,9 +103,9 @@ class Character:
 
     def get_inventory(self, as_dict=False):
         if not as_dict:
-            return self.inventory
+            return self.inventory.get_capacity(), self.inventory
         else:
-            return [item.to_dict() for item in self.inventory.get_items()]
+            return self.inventory.get_capacity(), [item.to_dict() for item in self.inventory.get_items()]
 
 class Player(Character):
     def __init__(self, name, starting_location):
@@ -102,14 +123,27 @@ class ItemActions:
         if character.add_to_inventory(item):
             item.owner = character
             room = game.map.get_room_by_id(character.location)
-            del room.interactive_items[item.item_id]
-            return f"You picked up the {item.name}."
+            if item.dropped:
+                del room.dropped_items[item.item_id]
+                item.dropped = False
+            else:
+                del room.interactive_items[item.item_id]
         else:
             return "You can't carry any more items."
+        
+    @staticmethod
+    def drop(game, character, item):
+        character.remove_from_inventory(item)
+        room = game.map.get_room_by_id(character.location)
+        item.owner = room
+        item.dropped = True
+        room.dropped_items[item.item_id] = item
+        return f"You dropped the {item.name}."
     
 class Item:
     ACTIONS = {
         'pick_up': ItemActions.pick_up,
+        'drop': ItemActions.drop,
         # Add more actions here
     }
 
@@ -120,27 +154,39 @@ class Item:
         self.owner = owner
         self.actions = actions
         self.action_functions = {action_name: self.ACTIONS.get(action_name) for action_name in actions if self.ACTIONS.get(action_name)} if actions else {}
+        self.dropped = False
 
     def interact(self, game, character, action_name):
-        if self.actions:
-            action_result = self.action_functions[action_name](game, character, self)
-            action = self.actions[action_name]
-            if 'consequence' in action and action['consequence'] == 'set_state':
-                room = game.map.get_room_by_id(character.location)
-                state_to_change = action['state_change']
-                print(state_to_change)
-                for key, value in state_to_change.items():
-                    room.state[key] = value
-                    print(f'Set {key} to {value}')
-            return action_result
-        else:
+        if not self.actions:
             return self.description
 
-    def inspect(self):
-        return self.name, self.description, self.get_actions()
+        action_result = self.perform_action(game, character, action_name)
+        self.handle_consequence(game, character, action_name)
 
-    def get_actions(self):
-        return list(self.actions.keys())
+        return action_result
+
+    def perform_action(self, game, character, action_name):
+        return self.action_functions[action_name](game, character, self)
+
+    def handle_consequence(self, game, character, action_name):
+        action = self.actions[action_name]
+        if 'consequence' in action and action['consequence'] == 'set_state':
+            self.set_state(game, character, action)
+
+    def set_state(self, game, character, action):
+        room = game.map.get_room_by_id(character.location)
+        state_to_change = action['state_change']
+        for key, value in state_to_change.items():
+            room.state[key] = value
+
+    def inspect(self):
+        return self.name, self.description, self.get_actions(only_room=True)
+
+    def get_actions(self, only_room=False):
+        if only_room:
+            return [key for key, value in self.actions.items() if value.get('visible_in_room') == 'true']
+        else:
+            return list(self.actions.keys())
 
     def to_dict(self):
         return {
@@ -162,4 +208,11 @@ class ItemsManager:
         del self.items[item_id]
 
     def get_item(self, item_id):
-        return self.items.get(item_id)
+        item = self.items.get(item_id)
+        if not item:
+            raise ValueError(f"No item with id {item_id}")
+        return item
+
+    def validate_item_actions(self, item, action_name):
+        if action_name not in item.get_actions():
+            raise ValueError(f"Invalid action {action_name} for item {item.id}")

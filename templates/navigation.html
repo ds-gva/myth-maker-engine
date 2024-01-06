@@ -1,8 +1,25 @@
-<div class="flex flex-wrap justify-center space-x-4">
-    {% for direction, location in directions.items() %}
-        <form method="POST" class="mt-4">
-            <input type="hidden" name="direction" value="{{ direction }}">
-            <input type="submit" value="Go {{ direction }}" class="w-32 px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white font-bold rounded">
+<div class="flex flex-col items-center space-y-3">
+    <!-- North Button -->
+    <form method="POST" class="mt-2">
+        <input type="hidden" name="direction" value="north">
+        <input type="submit" value="↑ North" class="w-24 h-10 text-lg font-bold rounded-full transition duration-200 ease-in-out {{ 'bg-green-500 hover:bg-green-600 text-white shadow-md cursor-pointer' if directions.get('north') else 'bg-gray-400 text-gray-700 cursor-not-allowed' }}" {{ 'disabled' if not directions.get('north') }}>
+    </form>
+
+    <!-- West and East Buttons -->
+    <div class="flex justify-between gap-8 my-2">
+        <form method="POST">
+            <input type="hidden" name="direction" value="west">
+            <input type="submit" value="← West" class="w-24 h-10 text-lg font-bold rounded-full transition duration-200 ease-in-out {{ 'bg-green-500 hover:bg-green-600 text-white shadow-md cursor-pointer' if directions.get('west') else 'bg-gray-400 text-gray-700 cursor-not-allowed' }}" {{ 'disabled' if not directions.get('west') }}>
         </form>
-    {% endfor %}
+        <form method="POST">
+            <input type="hidden" name="direction" value="east">
+            <input type="submit" value="East →" class="w-24 h-10 text-lg font-bold rounded-full transition duration-200 ease-in-out {{ 'bg-green-500 hover:bg-green-600 text-white shadow-md cursor-pointer' if directions.get('east') else 'bg-gray-400 text-gray-700 cursor-not-allowed' }}" {{ 'disabled' if not directions.get('east') }}>
+        </form>
+    </div>
+
+    <!-- South Button -->
+    <form method="POST" class="mb-2">
+        <input type="hidden" name="direction" value="south">
+        <input type="submit" value="↓ South" class="w-24 h-10 text-lg font-bold rounded-full transition duration-200 ease-in-out {{ 'bg-green-500 hover:bg-green-600 text-white shadow-md cursor-pointer' if directions.get('south') else 'bg-gray-400 text-gray-700 cursor-not-allowed' }}" {{ 'disabled' if not directions.get('south') }}>
+    </form>
 </div>

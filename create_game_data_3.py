@@ -1,6 +1,6 @@
 import json
 
-def create_game_data(map_filename, state_filename):
+def create_game_data(map_filename, state_filename, dialogues_filename):
     # Define initial state
     initial_state = {
         "characters": {
@@ -13,12 +13,32 @@ def create_game_data(map_filename, state_filename):
         "history": []
     }
 
+    dialogues = {
+    "mother_dialogue_scarf": {
+        "lines": [
+            {   
+                "npc_line": "Don't you go out without your scarf, it's cold outside!",
+                "player_responses": {
+                    "Okay, mom.": "mother_dialogue_scarf_taken",
+                }
+            }
+        ]
+    },
+    "mother_dialogue_scarf_taken": {
+            "lines": [
+                {
+                    "npc_line": "Take care, dear!",
+                    "player_responses": {}
+                }
+            ]
+        }
+    }
 
     # Define game map
     game_map = {
         "Home": {
             "id": "home",
-            "base_description": "You are at home with your mother and sister. The house is warm and cozy. At the north of the room there is a door to go outside, it's unlocked. {scarf1_description}.",
+            "base_description": "You are at home with your [mother1] and sister. The house is warm and cozy. At the north of the room there is a door to go outside, it's unlocked. {scarf1_description}.",
             "dynamic_text": {
                 "scarf1_description": {
                     "default": "A [scarf1] is folded on a chair by the door",
@@ -40,12 +60,9 @@ def create_game_data(map_filename, state_filename):
             },
             "npcs": {
                 "mother": {
-                "name": "Mother",
-                "dialogues": {
-                    "default": "Don't forget your scarf, it's cold outside!",
-                    "scarf_taken": "Take care, dear!"
+                    "id": "mother1",
+                    "name": "Mother",
                     }
-                }
             },
             "interactive_items": {
                 "scarf": {
@@ -56,7 +73,11 @@ def create_game_data(map_filename, state_filename):
                             "consequence": "set_state",
                             "state_change": {
                                 "scarf1_taken": 'true'
-                            }
+                            },
+                            "visible_in_room": "true"
+                        },
+                        "drop": {
+                            "visible_in_room": "false"
                         }
                     },
                     "conditions": {
@@ -82,7 +103,7 @@ def create_game_data(map_filename, state_filename):
         },
         "Shed": {
                 "id": "shed1",
-                "base_description": "You are in a small shed. It's dark and dusty, with tools scattered around. {hammer1_description}.",
+                "base_description": "You are in a small shed. It's dark and dusty, with tools scattered around. {hammer1_description}",
                 "dynamic_text": {
                     "hammer1_description": {
                         "default": "I can't see much.",
@@ -101,6 +122,7 @@ def create_game_data(map_filename, state_filename):
                     "light_on": "true",
                     "light_on_hammer_taken": "false"
                 },
+                "npcs": {},
                 "interactive_items": {
                       "hammer": {
                         "id": "hammer1",
@@ -111,7 +133,11 @@ def create_game_data(map_filename, state_filename):
                                 "state_change": {
                                     "light_on_hammer_taken": 'true',
                                     "light_on": "false"
-                                }
+                                },
+                                "visible_in_room": "true"
+                            },
+                            "drop": {
+                            "visible_in_room": "false"
                             }
                         },
                         "conditions": {
@@ -127,6 +153,9 @@ def create_game_data(map_filename, state_filename):
 
     with open(state_filename, 'w') as f:
         json.dump(initial_state, f, indent=4)
+    
+    with open(dialogues_filename, 'w') as f:
+        json.dump(dialogues, f, indent=4)
 
 if __name__ == "__main__":
-    create_game_data("game_data/game_map.json", "game_data/initial_state.json")
+    create_game_data("game_data/game_map.json", "game_data/initial_state.json", "game_data/dialogues.json")

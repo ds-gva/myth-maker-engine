@@ -36,3 +36,11 @@ Contributions are welcome! Please feel free to submit a pull request.
 ## License
 
 This project is licensed under the terms of the MIT license.
+
+## Next Steps
+
+* Implementing a dialogue system for NPCs
+* Adding Player profile & characteristics (equipment & skill level)
+* Creating a combat system
+* Breaking down the game into chapters
+* Improving the frontend

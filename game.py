@@ -1,5 +1,5 @@
 import json
-from entities import Room, Player
+from entities import Room, Player, NPC
 from entities import Item, ItemActions, ItemsManager
 
 class Game:
@@ -38,21 +38,16 @@ class Game:
     
     def inspect_item(self, item_id):
         item = self.items_manager.get_item(item_id) 
-        if item:
-            item_name, item_description, item_actions = item.inspect()
-            return item_name, item_description, item_actions
-        return "You can't inspect that.", []
+        item_name, item_description, item_actions = item.inspect()
+        return item_name, item_description, item_actions
 
     def interact_with_item(self, character_name, item_id, action_name):
         character = self.get_character(character_name)
-        if character:
-            print("1")
-            item = self.items_manager.get_item(item_id)
-            print(item)
-            if item and action_name in item.get_actions():
-                print(item.get_actions())
-                return item.interact(self, character, action_name)
-        return "You can't interact with that."
+        if not character:
+            raise ValueError(f"No character with name {character_name}")
+        item = self.items_manager.get_item(item_id)
+        self.items_manager.validate_item_actions(item, action_name)
+        return item.interact(self, character, action_name)
 
 
 class Map:
@@ -64,23 +59,39 @@ class Map:
     def get_items_manager(self):
         return self.items_manager
 
+    def load_interactive_items(self, room_data, room_name):
+        interactive_items = {}
+        for item_name, item_data in room_data.get('interactive_items', {}).items():
+            item_id = item_data['id']
+            item = Item(item_name, item_id, item_data['description'], room_name, item_data['actions'])
+            interactive_items[item_id] = item
+            self.items_manager.add_item(item)
+        return interactive_items
+    
+    def load_npcs(self, room_data):
+        npcs = {}
+        for npc_name, npc_data in room_data.get('npcs', {}).items():
+            npc_id = npc_data['id']
+            npc = NPC(npc_name, npc_id, npc_data['name'])
+            npcs[npc_id] = npc
+        return npcs
+    
+    def load_directions(self, room_data):
+        directions = {}
+        for direction, direction_data in room_data.get('directions', {}).items():
+            if isinstance(direction_data, dict):
+                directions[direction] = direction_data
+            else:
+                directions[direction] = {'id': direction_data}
+        return directions
+
     def load_map(self, game_map_data):
         with open(game_map_data, 'r') as f:
             game_map = json.load(f)
             for room_name, room_data in game_map.items():
-                interactive_items = {}
-                for item_name, item_data in room_data['interactive_items'].items():
-                    item_id = item_data['id']
-                    item = Item(item_name, item_id, item_data['description'], room_name, item_data['actions'])
-                    interactive_items[item_id] = item
-                    self.items_manager.add_item(item)
-
-                directions = {}
-                for direction, direction_data in room_data['directions'].items():
-                    if isinstance(direction_data, dict):
-                        directions[direction] = direction_data
-                    else:
-                        directions[direction] = {'id': direction_data}
+                interactive_items = self.load_interactive_items(room_data, room_name)
+                npcs = self.load_npcs(room_data)
+                directions = self.load_directions(room_data)
                 room = Room(room_name,
                             room_data['id'],
                             room_data['base_description'],
@@ -88,14 +99,16 @@ class Map:
                             room_data.get('conditions'),
                             room_data.get('dynamic_text'),
                             room_data.get('state'),
-                            interactive_items)
-                self.rooms[room.name] = room
-
+                            interactive_items,
+                            npcs)
+                self.rooms[room.id] = room
+    
     def get_room_by_id(self, room_id):
-        for room in self.rooms.values():
-            if room.id == room_id:
-                return room
-        return None
+        room = self.rooms.get(room_id)
+        print(room)
+        if not room:
+            raise ValueError(f"No room with id {room_id}")
+        return room
 
     def can_move(self, current_room, direction):
         room = self.get_room_by_id(current_room)
@@ -107,7 +120,8 @@ class Map:
         return condition is None or condition in state.get('inventory', [])
 
     def get_new_location(self, current_room, direction):
-        return self.rooms[current_room].directions[direction]
+        room = self.get_room_by_id(current_room)
+        return room.directions[direction]
     
 class Movement:
         def __init__(self, game_map):
@@ -115,9 +129,7 @@ class Movement:
 
         def move(self, character, direction, target_room_id):
             current_location = character.location
-            print(current_location)
             if self.can_move(current_location, direction, target_room_id):
-                print(f'Moving {character.name} {target_room_id}')
                 new_location = self.get_new_location(target_room_id).id
                 character.location = new_location
                 character.history.append({'direction': direction, 'location': new_location})

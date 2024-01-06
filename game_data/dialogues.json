@@ -1,0 +1,20 @@
+{
+    "mother_dialogue_scarf": {
+        "lines": [
+            {
+                "npc_line": "Don't you go out without your scarf, it's cold outside!",
+                "player_responses": {
+                    "Okay, mom.": "mother_dialogue_scarf_taken"
+                }
+            }
+        ]
+    },
+    "mother_dialogue_scarf_taken": {
+        "lines": [
+            {
+                "npc_line": "Take care, dear!",
+                "player_responses": {}
+            }
+        ]
+    }
+}

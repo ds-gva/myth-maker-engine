@@ -33,6 +33,7 @@ function interactWithItem(itemId, action) {
     fetch('/interact_with_item/' + itemId + '/' + action, { method: 'POST' })
     .then(response => response.json())
     .then(data => {
+        console.log(data)
         var roomName = document.querySelector('div[data-room-name]').dataset.roomName;
         fetchAndUpdateInventory();
         getRoomDescription(roomName);
