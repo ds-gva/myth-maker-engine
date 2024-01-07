@@ -33,9 +33,12 @@ class ItemActions:
 
     @staticmethod
     def drop(game, character, item):
-        character.remove_from_inventory(item)
-        room = game.map.get_room_by_id(character.location)
-        item.owner = room
-        item.dropped = True
-        room.dropped_items[item.item_id] = item
-        return {"success": True, "message": f"You dropped the {item.name}."}
+        if item.droppable == False:
+            return {"success": False, "message": "You can't drop that item."}
+        else:
+            character.remove_from_inventory(item)
+            room = game.map.get_room_by_id(character.location)
+            item.owner = room
+            item.dropped = True
+            room.dropped_items[item.item_id] = item
+            return {"success": True, "message": f"You dropped the {item.name}."}

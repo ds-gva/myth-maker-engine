@@ -14,25 +14,43 @@ def create_game_data(map_filename, state_filename, dialogues_filename):
     }
 
     dialogues = {
-    "mother_dialogue_scarf": {
-        "lines": [
-            {   
-                "npc_line": "Don't you go out without your scarf, it's cold outside!",
-                "player_responses": {
-                    "Okay, mom.": "mother_dialogue_scarf_taken",
-                }
-            }
-        ]
-    },
-    "mother_dialogue_scarf_taken": {
-            "lines": [
+
+    "dialogue_id": "npc_mother_dialogue",
+    "nodes": [
                 {
-                    "npc_line": "Take care, dear!",
-                    "player_responses": {}
+                    "id": "greeting",
+                    "text": "Hello, adventurer!",
+                    "choices": [
+                        {
+                            "text": "Hello!",
+                            "next_node": "question1",
+                            "conditions": {}
+                        },
+                        {
+                            "text": "Goodbye.",
+                            "next_node": 'None',
+                            "conditions": {}
+                        }
+                    ]
+                },
+                {
+                    "id": "question1",
+                    "text": "Can you help me find my lost item?",
+                    "choices": [
+                        {
+                            "text": "Yes, I can help.",
+                            "next_node": "thanks",
+                            "conditions": {}
+                        },
+                        {
+                            "text": "No, I can't help.",
+                            "next_node": "goodbye",
+                            "conditions": {}
+                        }
+                    ]
                 }
             ]
-        }
-    }
+    }   
 
     # Define game map
     game_map = {
@@ -42,15 +60,21 @@ def create_game_data(map_filename, state_filename, dialogues_filename):
             "dynamic_text": {
                 "scarf1_description": {
                     "default": "A [scarf1] is folded on a chair by the door",
-                    "conditions": {
-                        "scarf1_taken": "The chair by the door is empty"
+                    "conditions": [
+                        {
+                            "condition": "scarf1_taken",
+                            "text": "The chair by the door is empty."
                         }
+                    ]
                     },
                 "coins_description": {
                     "default": "There are [resource: coins | 10 | coins | coins1_taken] on the table.",
-                    "conditions": {
-                        "coins1_taken": "There is nothing on the table."
+                    "conditions": [
+                        {
+                            "condition": "coins1_taken",
+                            "text": "There is nothing on the table."
                         }
+                    ]
                     },
             },
             "directions": {
@@ -69,12 +93,14 @@ def create_game_data(map_filename, state_filename, dialogues_filename):
                 "mother": {
                     "id": "mother1",
                     "name": "Mother",
+                    "interact_trigger": "npc_mother_dialogue",
                     }
             },
             "interactive_items": {
                 "scarf": {
                     "id": "scarf1",
                     "description": "It's a nice warm woolen scarf. Very useful on cold nights.",
+                    "droppable": 'false',
                     "actions": {
                         "pick_up": {
                             "consequence": "set_state",
@@ -99,9 +125,16 @@ def create_game_data(map_filename, state_filename, dialogues_filename):
             "dynamic_text": {
                 "tree1_description": {
                     "default": "There is a patch of [tree1] in the corner of the garden.",
-                    "conditions": {
-                        "trees_chopped": "There is a pile of chopped wood in the corner of the garden."
+                "conditions": [
+                    {
+                        "condition": "trees_chopped",
+                        "text": "There is a pile of [resource: wood | 10 | chopped wood | wood_taken] in the corner of the garden."
+                    },
+                    {
+                        "condition": "wood_taken",
+                        "text": "A few stubs of wood in the corner of the garden."
                     }
+                ]
                 }
             },
 
@@ -114,7 +147,8 @@ def create_game_data(map_filename, state_filename, dialogues_filename):
                 }
             },
             "state": {
-                "trees_chopped": "false"
+                "trees_chopped": "false",
+                "wood_taken": "false"
             },
             "interactive_items": {
                 "fir trees": {
@@ -139,9 +173,12 @@ def create_game_data(map_filename, state_filename, dialogues_filename):
                 "dynamic_text": {
                     "axe1_description": {
                         "default": "I can see an [axe1].",
-                        "conditions": {
-                            "axe_taken": "Most of these tools are too old to be used."
-                        }
+                    "conditions": [
+                    {
+                        "condition": "axe_taken",
+                        "text": "Most of these tools are too old to be used."
+                    }
+                    ]
                     }
                 },
                 "directions": {

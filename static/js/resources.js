@@ -2,9 +2,9 @@ function pickUpResrouces(resourceId, quantity, roomId, stateChange) {
     fetch('/collect_resources/' + resourceId + '/' + quantity + '/' + roomId + '/' + stateChange, { method: 'POST' })
         .then(response => response.json())
         .then(data => {
-            getRoomDescription(roomId);
             fetchAndUpdateResources()
             alert(data.result.message);
+            getRoomDescription(roomId);
         });
 }
 

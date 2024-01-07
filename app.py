@@ -3,9 +3,20 @@ from engine.game import Game
 from engine.items.item_actions import ItemActions
 from engine.characters.resource import Resource
 
+
 app = Flask(__name__)
-game = Game('game_data/initial_state.json', 'game_data/game_map.json')
-player = game.get_character('PlayerName')
+
+
+INITIAL_STATE_FILE = 'game_data/initial_state.json'
+GAME_MAP_FILE = 'game_data/game_map.json'
+GAME_DIALOGUES_FILE = 'game_data/dialogues.json'
+
+
+PLAYER_NAME = 'PlayerName'
+
+
+game = Game(INITIAL_STATE_FILE, GAME_MAP_FILE, GAME_DIALOGUES_FILE)
+player = game.get_character(PLAYER_NAME)
 
 resources_data =  [{
             "id": "wood",
@@ -19,7 +30,12 @@ resources_data =  [{
         }
 ]
 
-# Populate resources
+mother_npc = game.map.get_room_by_id('home').get_npcs_by_id('mother1')
+
+print(mother_npc.interact_trigger)
+
+
+# Populate resources - CONSIDER MOVING TO GAME.PY
 for resource_data in resources_data:
     resource = Resource(resource_data['id'], resource_data['name'], resource_data['quantity'])
     player.resources.add_resource(resource)
@@ -83,30 +99,32 @@ def interact_route(item_id, action_name):
 @app.route('/inventory', methods=['GET'])
 def inventory_route():
     inventory_capacity, inventory = player.get_inventory()
-    inventory_list = []
-    for item in inventory.items:
-        inventory_list.append({'name': item.name, 'item_id': item.item_id, 'quantity': item.quantity})
+    inventory_list = [{'name': item.name, 'item_id': item.item_id, 'quantity': item.quantity} for item in inventory.items]
     return jsonify(inventory_capacity=inventory_capacity, inventory=inventory_list)
 
 @app.route('/resources', methods=['GET'])
 def resources_route():
     resources = player.resources.get_all_resources()
-    resources_list = []
-    for resource in resources:
-        resources_list.append({'id': resource.id, 'name': resource.name, 'quantity': resource.quantity})
+    resources_list = [{'id': resource.id, 'name': resource.name, 'quantity': resource.quantity} for resource in resources]
     return jsonify(resources=resources_list)
 
 @app.route('/collect_resources/<resource_id>/<quantity>', methods=['POST'])
 def collect_resources_route(resource_id, quantity):
     result = player.resources.update_resource_quantity(resource_id, int(quantity))
-    return jsonify(result=result)
+    if result:
+        return jsonify(result=result), 200
+    else:
+        return jsonify(error='Failed to update resource quantity'), 400
 
 @app.route('/collect_resources/<resource_id>/<quantity>/<room_id>/<state_change>', methods=['POST'])
 def collect_resources_state_change_route(resource_id, quantity, room_id, state_change):
     result = player.resources.update_resource_quantity(resource_id, int(quantity))
     current_room = game.map.get_room_by_id(room_id)
-    current_room.room_resource_state_change(state_change)
-    return jsonify(result=result)
+    current_room.room_resource_state_change(state_change, 'true')
+    if result:
+        return jsonify(result=result), 200
+    else:
+        return jsonify(error='Failed to update resource quantity'), 400
 
 if __name__ == '__main__':
     app.run(debug=True)

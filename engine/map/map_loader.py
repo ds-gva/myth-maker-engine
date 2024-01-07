@@ -33,7 +33,8 @@ class MapLoader:
         interactive_items = {}
         for item_name, item_data in room_data.get('interactive_items', {}).items():
             item_id = item_data['id']
-            item = Item(item_name, item_id, item_data['description'], room_name, item_data['actions'])
+            item_droppable = item_data.get('droppable', 'true').lower() == 'true'
+            item = Item(item_name, item_id, item_data['description'], room_name, item_data['actions'], droppable=item_droppable)
             interactive_items[item_id] = item
             self.items_manager.add_item(item)
         return interactive_items
@@ -42,7 +43,9 @@ class MapLoader:
         npcs = {}
         for npc_name, npc_data in room_data.get('npcs', {}).items():
             npc_id = npc_data['id']
-            npc = NPC(npc_name, npc_id, npc_data['name'])
+            npc_name = npc_data['name']
+            interact_trigger = npc_data['interact_trigger']
+            npc = NPC(npc_name, room_data['id'], npc_id, interact_trigger)
             npcs[npc_id] = npc
         return npcs
     

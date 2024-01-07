@@ -18,12 +18,10 @@ class Room:
         for key, dynamic_text in self.dynamic_text.items():
             placeholder = '{' + key + '}'
             text = dynamic_text['default']
-            for condition, condition_text in dynamic_text['conditions'].items():
-                if self.state.get(condition) == 'true':
-                    text = condition_text
-                    break
+            for condition in dynamic_text['conditions']:
+                if self.state.get(condition['condition']) == 'true':
+                    text = condition['text']
             description = description.replace(placeholder, text)
-
         return description
 
     def get_parsed_description(self):
@@ -64,6 +62,12 @@ class Room:
         
     def get_interactive_items(self):
         return self.interactive_items
+    
+    def get_npcs(self):
+        return self.npcs
+    
+    def get_npcs_by_id(self, npc_id):
+        return self.npcs[npc_id]
 
     def set_description(self, description):
         self.description = description
@@ -71,6 +75,5 @@ class Room:
     def get_dropped_items(self):
         return self.dropped_items
     
-    def room_resource_state_change(self, resource_state_change):
-        self.state[resource_state_change] = 'true'
-        print(self.state['coins1_taken'])
+    def room_resource_state_change(self, resource_state_change, status):
+        self.state[resource_state_change] = status

@@ -1,7 +1,7 @@
 from engine.items.item_actions import ItemActions
     
 class Item:
-    def __init__(self, name, item_id, description, owner=None, actions=None, stackable=False, quantity=1):
+    def __init__(self, name, item_id, description, owner=None, actions=None, stackable=False, quantity=1, droppable=True):
         self.name = name
         self.item_id = item_id
         self.description = description
@@ -10,6 +10,7 @@ class Item:
         self.action_functions = {action_name: ItemActions.actions.get(action_name) for action_name in actions if ItemActions.actions.get(action_name)} if actions else {}
         self.stackable = stackable
         self.quantity = quantity
+        self.droppable = droppable
         self.dropped = False
 
     def inspect(self):
@@ -46,5 +47,9 @@ class Item:
             'item_id': self.item_id,
             'description': self.description,
             'owner': self.owner,
-            'actions': self.actions
+            'actions': self.actions,
+            'stackable' : self.stackable,
+            'quantity': self.quantity,
+            'droppable': self.droppable,
+            'dropped': self.dropped
         }

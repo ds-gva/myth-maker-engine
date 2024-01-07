@@ -1,20 +1,37 @@
 {
-    "mother_dialogue_scarf": {
-        "lines": [
-            {
-                "npc_line": "Don't you go out without your scarf, it's cold outside!",
-                "player_responses": {
-                    "Okay, mom.": "mother_dialogue_scarf_taken"
+    "dialogue_id": "npc_mother_dialogue",
+    "nodes": [
+        {
+            "id": "greeting",
+            "text": "Hello, adventurer!",
+            "choices": [
+                {
+                    "text": "Hello!",
+                    "next_node": "question1",
+                    "conditions": {}
+                },
+                {
+                    "text": "Goodbye.",
+                    "next_node": "None",
+                    "conditions": {}
                 }
-            }
-        ]
-    },
-    "mother_dialogue_scarf_taken": {
-        "lines": [
-            {
-                "npc_line": "Take care, dear!",
-                "player_responses": {}
-            }
-        ]
-    }
+            ]
+        },
+        {
+            "id": "question1",
+            "text": "Can you help me find my lost item?",
+            "choices": [
+                {
+                    "text": "Yes, I can help.",
+                    "next_node": "thanks",
+                    "conditions": {}
+                },
+                {
+                    "text": "No, I can't help.",
+                    "next_node": "goodbye",
+                    "conditions": {}
+                }
+            ]
+        }
+    ]
 }

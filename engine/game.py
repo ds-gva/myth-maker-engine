@@ -3,9 +3,10 @@ from .map.map import Map
 from .map.map_loader import MapLoader
 from .characters.player import Player
 from .navigation.movement import Movement
+from .characters.resource import Resource
 
 class Game:
-    def __init__(self, initial_state_data, game_map_data):
+    def __init__(self, initial_state_data, game_map_data, game_dialogues_data):
         self.state = {}
         self.characters = {}
         self.map_loader = MapLoader(game_map_data)
@@ -13,6 +14,7 @@ class Game:
         self.map = Map(self.rooms, self.items_manager)
         self.movement = Movement(self.map)
         self.items_manager = self.map.get_items_manager()
+        self.dialogues = self.load_dialogues(game_dialogues_data)
         self.load_initial_state(initial_state_data)
 
     def load_initial_state(self, initial_state_data):
@@ -52,3 +54,8 @@ class Game:
         item = self.items_manager.get_item(item_id)
         self.items_manager.validate_item_actions(item, action_name)
         return item.interact(self, character, action_name)
+    
+    def load_dialogues(self, game_dialogues_data):
+        with open(game_dialogues_data, 'r') as f:
+            dialogues_data = json.load(f)
+        return dialogues_data
