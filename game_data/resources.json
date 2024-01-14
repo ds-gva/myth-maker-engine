@@ -1,0 +1,12 @@
+[
+    {
+        "id": "wood",
+        "name": "wood",
+        "quantity": 0
+    },
+    {
+        "id": "coins",
+        "name": "coin",
+        "quantity": 0
+    }
+]

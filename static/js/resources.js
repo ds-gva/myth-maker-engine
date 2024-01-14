@@ -6,7 +6,7 @@ function createResourceHtml(tag, components) {
     return `<span class="resource-item underline underline-offset-4 text-amber-700 font-bold cursor-pointer" data-resource-id="${resourceId}" data-quantity="${quantity}" data-state="${stateChange}">${quantity} ${text}</span>`;
 }
 
-function pickUpResrouces(resourceId, quantity, roomId, stateChange) {
+function pickUpResources(resourceId, quantity, roomId, stateChange) {
     fetch('/collect_resources/' + resourceId + '/' + quantity + '/' + roomId + '/' + stateChange, { method: 'POST' })
         .then(response => response.json())
         .then(data => {

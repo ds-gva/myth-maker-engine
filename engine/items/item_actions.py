@@ -1,3 +1,5 @@
+from engine.actions.action import Action
+
 class ItemActions:
     _instance = None
     actions = {

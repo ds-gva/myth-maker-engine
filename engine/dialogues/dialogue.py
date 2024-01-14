@@ -45,9 +45,17 @@ class DialogueManager:
         return dialogue_id, self.active_dialogues[dialogue_id].current_node
 
     def proceed_dialogue(self, dialogue_id, choice_id):
+        current_node = self.active_dialogues[dialogue_id].current_node
+        actions = []
+        for choice in current_node['choices']:
+            if choice['next_node'] == choice_id and choice['actions']:
+                actions = choice['actions']
+
         self.active_dialogues[dialogue_id].current_node = self.active_dialogues[dialogue_id].get_node_by_id(choice_id)
         next_node = self.active_dialogues[dialogue_id].current_node 
+ 
         if not next_node:
             del self.active_dialogues[dialogue_id]
-            return {"end": True, "message": "Dialogue ended"}
-        return dialogue_id, next_node
+            return {"end": True, "message": "Dialogue ended", "actions": actions}
+        
+        return dialogue_id, next_node, actions

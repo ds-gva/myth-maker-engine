@@ -4,9 +4,12 @@ from .map.map_loader import MapLoader
 from .characters.player import Player
 from .navigation.movement import Movement
 from .characters.resource import Resource
+from .actions.action import ActionRegistry
+from .dialogues.dialogue import DialogueManager
 
 class Game:
-    def __init__(self, initial_state_data, game_map_data, game_dialogues_data):
+    def __init__(self, game_title, initial_state_data, game_map_data, game_dialogues_data, game_resources_data):
+        self.title = game_title
         self.state = {}
         self.characters = {}
         self.map_loader = MapLoader(game_map_data)
@@ -14,7 +17,9 @@ class Game:
         self.map = Map(self.rooms, self.items_manager)
         self.movement = Movement(self.map)
         self.items_manager = self.map.get_items_manager()
-        self.dialogues = self.load_dialogues(game_dialogues_data)
+        self.dialogues = self.load_dialogues_data(game_dialogues_data)
+        self.dialogue_manager = DialogueManager(self.dialogues)
+        self.resources = self.load_resources_data(game_resources_data)
         self.load_initial_state(initial_state_data)
 
     def load_initial_state(self, initial_state_data):
@@ -55,7 +60,21 @@ class Game:
         self.items_manager.validate_item_actions(item, action_name)
         return item.interact(self, character, action_name)
     
-    def load_dialogues(self, game_dialogues_data):
+    def load_dialogues_data(self, game_dialogues_data):
         with open(game_dialogues_data, 'r') as f:
             dialogues_data = json.load(f)
         return dialogues_data
+    
+    def load_resources_data(self, game_resources_data):
+        with open(game_resources_data, 'r') as f:
+            resources_data = json.load(f)
+        return resources_data
+    
+    def populate_resources (self, character_name):
+        character = self.get_character(character_name)
+        if not character:
+            raise ValueError(f"No character with name {character_name}")
+        else:
+            for resource in self.resources:
+                resource_to_add = Resource(resource['id'], resource['name'], resource['quantity'])
+                character.resources.add_resource(resource_to_add)

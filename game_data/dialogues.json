@@ -1,51 +1,76 @@
 [
     {
-    "dialogue_id": "npc_mother_dialogue",
-    "start_node_id": "wood_ask",
-    "nodes": [
-        {
-            "id": "wood_ask",
-            "text": "My son, can you go pickup some wood?",
-            "choices": [
-                {
-                    "text": "Of course!",
-                    "next_node": "thank_you_wood_ask",
-                    "conditions": {}
-                },
-                {
-                    "text": "No, I'm busy mother!",
-                    "next_node": "not_helpful",
-                    "conditions": {}
-                }
-            ]
-        },
-        {
-            "id": "thank_you_wood_ask",
-            "text": "Great! I am glad I can rely on you!",
-            "choices": [
-                {
-                    "text": "See you in a bit.",
-                    "next_node": null,
-                    "conditions": {}
-                }
-            ]
-        },
-        {
-            "id": "not_helpful",
-            "text": "Well thats not very helpful. Tell me when you can actually do it.",
-            "choices": [
-                {
-                    "text": "What did you need again?",
-                    "next_node": "wood_ask",
-                    "conditions": {}
-                },
-                {
-                    "text": "Ok, see you later.",
-                    "next_node": null,
-                    "conditions": {}
-                }
-            ]
-        }
-    ]
-}
+        "dialogue_id": "npc_mother_dialogue",
+        "start_node_id": "wood_ask",
+        "nodes": [
+            {
+                "id": "wood_ask",
+                "text": "My son, can you go pickup some wood?",
+                "choices": [
+                    {
+                        "text": "Of course!",
+                        "next_node": "thank_you_wood_ask",
+                        "conditions": {},
+                        "actions": {
+                            "change_npc_dialogue": "mother1 npc_mother_dialogue_2"
+                        }
+                    },
+                    {
+                        "text": "No, I'm busy mother!",
+                        "next_node": "not_helpful",
+                        "conditions": {},
+                        "actions": {}
+                    }
+                ]
+            },
+            {
+                "id": "thank_you_wood_ask",
+                "text": "Great! I am glad I can rely on you!",
+                "choices": [
+                    {
+                        "text": "See you in a bit.",
+                        "next_node": null,
+                        "conditions": {},
+                        "actions": {}
+                    }
+                ]
+            },
+            {
+                "id": "not_helpful",
+                "text": "Well thats not very helpful. Tell me when you can actually do it.",
+                "choices": [
+                    {
+                        "text": "What did you need again?",
+                        "next_node": "wood_ask",
+                        "conditions": {},
+                        "actions": {}
+                    },
+                    {
+                        "text": "Ok, see you later.",
+                        "next_node": null,
+                        "conditions": {},
+                        "actions": {}
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "dialogue_id": "npc_mother_dialogue_2",
+        "start_node_id": "wood_asked",
+        "nodes": [
+            {
+                "id": "wood_asked",
+                "text": "Thank you so much for helping out with the wood!",
+                "choices": [
+                    {
+                        "text": "Always happy to help!",
+                        "next_node": null,
+                        "conditions": {},
+                        "actions": {}
+                    }
+                ]
+            }
+        ]
+    }
 ]

@@ -45,8 +45,12 @@ class MapLoader:
             npc_id = npc_data['id']
             npc_name = npc_data['name']
             dialogue_id = npc_data['dialogue_id']
-            dialogue_starting_node = npc_data['dialogue_starting_node']
-            npc = NPC(npc_name, room_data['id'], npc_id, dialogue_id, dialogue_starting_node)
+            if 'dialogue_starting_node' in npc_data:
+                dialogue_starting_node_id = npc_data['dialogue_starting_node_id']
+                npc = NPC(npc_name, room_data['id'], npc_id, dialogue_id, dialogue_starting_node_id)
+            else:
+                npc = NPC(npc_name, room_data['id'], npc_id, dialogue_id)
+
             npcs[npc_id] = npc
         return npcs
     

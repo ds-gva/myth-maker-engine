@@ -1,6 +1,6 @@
 import json
 
-def create_game_data(map_filename, state_filename, dialogues_filename):
+def create_game_data(map_filename, state_filename, dialogues_filename, resources_filename):
     # Define initial state
     initial_state = {
         "characters": {
@@ -13,45 +13,95 @@ def create_game_data(map_filename, state_filename, dialogues_filename):
         "history": []
     }
 
-    dialogues = {
+    resources_data =  [{
+            "id": "wood",
+            "name": "wood",
+            "quantity": 0
+        },
+        {
+            "id": "coins",
+            "name": "coin",
+            "quantity": 0
+        }
+    ]
 
-    "dialogue_id": "npc_mother_dialogue",
-    "nodes": [
-                {
-                    "id": "greeting",
-                    "text": "Hello, adventurer!",
-                    "choices": [
-                        {
-                            "text": "Hello!",
-                            "next_node": "question1",
-                            "conditions": {}
-                        },
-                        {
-                            "text": "Goodbye.",
-                            "next_node": 'None',
-                            "conditions": {}
+    dialogues = [
+    {
+        "dialogue_id": "npc_mother_dialogue",
+        "start_node_id": "wood_ask",
+        "nodes": [
+            {
+                "id": "wood_ask",
+                "text": "My son, can you go pickup some wood?",
+                "choices": [
+                    {
+                        "text": "Of course!",
+                        "next_node": "thank_you_wood_ask",
+                        "conditions": {},
+                        "actions": {
+                            "change_npc_dialogue": "mother1 npc_mother_dialogue_2"
                         }
-                    ]
-                },
-                {
-                    "id": "question1",
-                    "text": "Can you help me find my lost item?",
-                    "choices": [
-                        {
-                            "text": "Yes, I can help.",
-                            "next_node": "thanks",
-                            "conditions": {}
-                        },
-                        {
-                            "text": "No, I can't help.",
-                            "next_node": "goodbye",
-                            "conditions": {}
-                        }
-                    ]
-                }
-            ]
-    }   
-
+                    },
+                    {
+                        "text": "No, I'm busy mother!",
+                        "next_node": "not_helpful",
+                        "conditions": {},
+                        "actions": {                        }
+                    }
+                ]
+            },
+            {
+                "id": "thank_you_wood_ask",
+                "text": "Great! I am glad I can rely on you!",
+                "choices": [
+                    {
+                        "text": "See you in a bit.",
+                        "next_node": None,
+                        "conditions": {},
+                        "actions": {}
+                    }
+                ]
+            },
+            {
+                "id": "not_helpful",
+                "text": "Well thats not very helpful. Tell me when you can actually do it.",
+                "choices": [
+                    {
+                        "text": "What did you need again?",
+                        "next_node": "wood_ask",
+                        "conditions": {},
+                        "actions": {}
+                    },
+                    {
+                        "text": "Ok, see you later.",
+                        "next_node": None,
+                        "conditions": {},
+                        "actions": {}
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "dialogue_id": "npc_mother_dialogue_2",
+        "start_node_id": "wood_asked",
+        "nodes": [
+            {
+                "id": "wood_asked",
+                "text": "Thank you so much for helping out with the wood!",
+                "choices": [
+                    {
+                        "text": "Always happy to help!",
+                        "next_node": None,
+                        "conditions": {},
+                        "actions": {}
+                    }
+                ]
+            }
+        ]
+    }
+]
+    
     # Define game map
     game_map = {
         "Home": {
@@ -63,7 +113,7 @@ def create_game_data(map_filename, state_filename, dialogues_filename):
                     "conditions": [
                         {
                             "condition": "scarf1_taken",
-                            "text": "The chair by the door is empty."
+                            "text": "The chair by the door is empty"
                         }
                     ]
                     },
@@ -93,8 +143,8 @@ def create_game_data(map_filename, state_filename, dialogues_filename):
                 "mother": {
                     "id": "mother1",
                     "name": "Mother",
-                    "interact_trigger": "npc_mother_dialogue",
-                    }
+                    "dialogue_id": "npc_mother_dialogue"
+                }
             },
             "interactive_items": {
                 "scarf": {
@@ -223,5 +273,8 @@ def create_game_data(map_filename, state_filename, dialogues_filename):
     with open(dialogues_filename, 'w') as f:
         json.dump(dialogues, f, indent=4)
 
+    with open(resources_filename, 'w') as f:
+        json.dump(resources_data, f, indent=4)
+
 if __name__ == "__main__":
-    create_game_data("./game_data/game_map.json", "./game_data/initial_state.json", "game_data/dialogues.json")
+    create_game_data("game_data/game_map.json", "game_data/initial_state.json", "game_data/dialogues.json", "game_data/resources.json")

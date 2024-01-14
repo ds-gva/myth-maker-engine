@@ -8,7 +8,7 @@
                 "conditions": [
                     {
                         "condition": "scarf1_taken",
-                        "text": "The chair by the door is empty."
+                        "text": "The chair by the door is empty"
                     }
                 ]
             },
@@ -38,8 +38,7 @@
             "mother": {
                 "id": "mother1",
                 "name": "Mother",
-                "dialogue_id": "npc_mother_dialogue",
-                "dialogue_starting_node": "greeting"
+                "dialogue_id": "npc_mother_dialogue"
             }
         },
         "interactive_items": {

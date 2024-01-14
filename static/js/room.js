@@ -41,7 +41,7 @@ function getRoomDescription(roomId) {
             });
 
             document.querySelectorAll('.resource-item').forEach(resource => {
-                resource.addEventListener('click', () => pickUpResrouces(resource.dataset.resourceId, resource.dataset.quantity, roomId, resource.dataset.state));
+                resource.addEventListener('click', () => pickUpResources(resource.dataset.resourceId, resource.dataset.quantity, roomId, resource.dataset.state));
             });
 
                document.querySelectorAll('[data-npc-id]').forEach(npcElement => {

@@ -3,47 +3,26 @@ from engine.game import Game
 from engine.items.item_actions import ItemActions
 from engine.characters.resource import Resource
 from engine.dialogues.dialogue import DialogueManager
+from engine.actions.action import CustomAction
+from engine.actions.action import ActionRegistry
 
 
 app = Flask(__name__)
 
+GAME_TITLE = "TestGame"
+PLAYER_NAME = 'PlayerName'
 
 INITIAL_STATE_FILE = 'game_data/initial_state.json'
 GAME_MAP_FILE = 'game_data/game_map.json'
 GAME_DIALOGUES_FILE = 'game_data/dialogues.json'
+GAME_RESOURCES_FILE = 'game_data/resources.json'
 
 
-PLAYER_NAME = 'PlayerName'
-
-
-game = Game(INITIAL_STATE_FILE, GAME_MAP_FILE, GAME_DIALOGUES_FILE)
+game = Game(GAME_TITLE, INITIAL_STATE_FILE, GAME_MAP_FILE, GAME_DIALOGUES_FILE, GAME_RESOURCES_FILE)
 player = game.get_character(PLAYER_NAME)
+game.populate_resources(PLAYER_NAME)
 
-resources_data =  [{
-            "id": "wood",
-            "name": "wood",
-            "quantity": 0
-        },
-        {
-            "id": "coins",
-            "name": "coin",
-            "quantity": 0
-        }
-]
-
-
-dialogues_data = game.load_dialogues(GAME_DIALOGUES_FILE)
-dialogue_manager = DialogueManager(dialogues_data)
-dialogue_manager.load_dialogues()
-
-
-
-# Populate resources - CONSIDER MOVING TO GAME.PY
-for resource_data in resources_data:
-    resource = Resource(resource_data['id'], resource_data['name'], resource_data['quantity'])
-    player.resources.add_resource(resource)
-
-# Define a new action
+# Define a new action attached to an item
 def chop_trees(game, character, item):
     player_inventory = character.get_inventory(get_capacity=False)
     if player_inventory.contains_item_by_id('axe1'):
@@ -52,6 +31,20 @@ def chop_trees(game, character, item):
         return {"success": False, "message": "You need an axe to chop the trees."}
 
 ItemActions.register_action("chop_trees", chop_trees)
+
+
+# Define a new general action (which can be called e.g., in a dialogue)
+def change_npc_dialogue(game, character, context=None):
+    npc_id, dialogue_id = context.split()
+    npc = game.map.get_room_by_id(character.location).get_npcs_by_id(npc_id)
+    npc.dialogue_id = dialogue_id
+    print(npc_id, dialogue_id)
+    # rest of the function
+
+change_npc_dialogue_action = CustomAction("change_npc_dialogue", "Changes an NPCs dialgoue.", change_npc_dialogue)
+action_registry = ActionRegistry()
+action_registry.register_action(change_npc_dialogue_action)
+
 
 @app.route('/', methods=['GET', 'POST'])
 def game_route():
@@ -66,15 +59,14 @@ def game_route():
         if game.movement.can_move(player.location, direction, target_room_id):
             game.move_character(player.name, direction, target_room_id)
             current_room = game.map.get_room_by_id(target_room_id)
-            print(f'Player moved {direction} to {target_room_id}')
         else:
             print("You can't go that way.")
 
-    
     description = current_room.get_parsed_description()
     directions = current_room.directions
 
     return render_template('game.html',
+                            game_title=game.title,
                             room_name=current_room.name,
                             room_id=current_room.id,
                             description=description,
@@ -133,22 +125,29 @@ def collect_resources_state_change_route(resource_id, quantity, room_id, state_c
 def dialogues_start_npc(room_id, npc_id):
     npc = game.map.get_room_by_id(room_id).get_npcs_by_id(npc_id) 
     try:
-        dialogue_id, dialogue = dialogue_manager.start_dialogue(npc.dialogue_id)
+        dialogue_id, dialogue = game.dialogue_manager.start_dialogue(npc.dialogue_id)
         return jsonify({'dialogue_id': dialogue_id, 'dialogue': dialogue})
     except ValueError as e:
+        print(e)
         return jsonify({'error': str(e)}), 400
 
 @app.route('/dialogues/next/<dialogue_id>/<next_node>', methods=['GET'])
 def next_node(dialogue_id, next_node):
     try:
-        dialogue_id, result = dialogue_manager.proceed_dialogue(dialogue_id, next_node)
+        dialogue_id, result, actions = game.dialogue_manager.proceed_dialogue(dialogue_id, next_node)
+        if actions:
+            for action, arg in actions.items():
+                action_registry.execute_action(action, game, player, context=arg) 
+
         if 'end' in result:
             # Dialogue has ended
             return jsonify(result), 200
+        
         else:
             # Dialogue is continuing
             return jsonify({'dialogue_id': dialogue_id, 'dialogue': result}), 200
     except ValueError as e:
+        print(e)
         return jsonify({'error': str(e)}), 400
 
 if __name__ == '__main__':

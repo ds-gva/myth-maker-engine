@@ -24,7 +24,6 @@ function displayDialogue(dialogueId, node, npcId) {
                 if (dialogueBox) {
                     dialogueBox.classList.add('hidden');
                 }
-                alert('Dialogue ended');
             } else {
                 fetch('/dialogues/next/' + dialogueId + '/' + choice.next_node)
                     .then(response => response.json())
