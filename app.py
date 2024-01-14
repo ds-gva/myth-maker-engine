@@ -2,6 +2,7 @@ from flask import Flask, request, render_template, jsonify
 from engine.game import Game
 from engine.items.item_actions import ItemActions
 from engine.characters.resource import Resource
+from engine.dialogues.dialogue import DialogueManager
 
 
 app = Flask(__name__)
@@ -30,9 +31,11 @@ resources_data =  [{
         }
 ]
 
-mother_npc = game.map.get_room_by_id('home').get_npcs_by_id('mother1')
 
-print(mother_npc.interact_trigger)
+dialogues_data = game.load_dialogues(GAME_DIALOGUES_FILE)
+dialogue_manager = DialogueManager(dialogues_data)
+dialogue_manager.load_dialogues()
+
 
 
 # Populate resources - CONSIDER MOVING TO GAME.PY
@@ -125,6 +128,28 @@ def collect_resources_state_change_route(resource_id, quantity, room_id, state_c
         return jsonify(result=result), 200
     else:
         return jsonify(error='Failed to update resource quantity'), 400
+    
+@app.route('/dialogues/start_npc/<room_id>/<npc_id>', methods=['GET'])
+def dialogues_start_npc(room_id, npc_id):
+    npc = game.map.get_room_by_id(room_id).get_npcs_by_id(npc_id) 
+    try:
+        dialogue_id, dialogue = dialogue_manager.start_dialogue(npc.dialogue_id)
+        return jsonify({'dialogue_id': dialogue_id, 'dialogue': dialogue})
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/dialogues/next/<dialogue_id>/<next_node>', methods=['GET'])
+def next_node(dialogue_id, next_node):
+    try:
+        dialogue_id, result = dialogue_manager.proceed_dialogue(dialogue_id, next_node)
+        if 'end' in result:
+            # Dialogue has ended
+            return jsonify(result), 200
+        else:
+            # Dialogue is continuing
+            return jsonify({'dialogue_id': dialogue_id, 'dialogue': result}), 200
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
 
 if __name__ == '__main__':
     app.run(debug=True)

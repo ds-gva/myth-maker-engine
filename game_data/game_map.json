@@ -38,7 +38,8 @@
             "mother": {
                 "id": "mother1",
                 "name": "Mother",
-                "interact_trigger": "npc_mother_dialogue"
+                "dialogue_id": "npc_mother_dialogue",
+                "dialogue_starting_node": "greeting"
             }
         },
         "interactive_items": {

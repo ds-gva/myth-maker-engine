@@ -1,37 +1,51 @@
-{
+[
+    {
     "dialogue_id": "npc_mother_dialogue",
+    "start_node_id": "wood_ask",
     "nodes": [
         {
-            "id": "greeting",
-            "text": "Hello, adventurer!",
+            "id": "wood_ask",
+            "text": "My son, can you go pickup some wood?",
             "choices": [
                 {
-                    "text": "Hello!",
-                    "next_node": "question1",
+                    "text": "Of course!",
+                    "next_node": "thank_you_wood_ask",
                     "conditions": {}
                 },
                 {
-                    "text": "Goodbye.",
-                    "next_node": "None",
+                    "text": "No, I'm busy mother!",
+                    "next_node": "not_helpful",
                     "conditions": {}
                 }
             ]
         },
         {
-            "id": "question1",
-            "text": "Can you help me find my lost item?",
+            "id": "thank_you_wood_ask",
+            "text": "Great! I am glad I can rely on you!",
             "choices": [
                 {
-                    "text": "Yes, I can help.",
-                    "next_node": "thanks",
+                    "text": "See you in a bit.",
+                    "next_node": null,
+                    "conditions": {}
+                }
+            ]
+        },
+        {
+            "id": "not_helpful",
+            "text": "Well thats not very helpful. Tell me when you can actually do it.",
+            "choices": [
+                {
+                    "text": "What did you need again?",
+                    "next_node": "wood_ask",
                     "conditions": {}
                 },
                 {
-                    "text": "No, I can't help.",
-                    "next_node": "goodbye",
+                    "text": "Ok, see you later.",
+                    "next_node": null,
                     "conditions": {}
                 }
             ]
         }
     ]
 }
+]

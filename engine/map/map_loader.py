@@ -44,8 +44,9 @@ class MapLoader:
         for npc_name, npc_data in room_data.get('npcs', {}).items():
             npc_id = npc_data['id']
             npc_name = npc_data['name']
-            interact_trigger = npc_data['interact_trigger']
-            npc = NPC(npc_name, room_data['id'], npc_id, interact_trigger)
+            dialogue_id = npc_data['dialogue_id']
+            dialogue_starting_node = npc_data['dialogue_starting_node']
+            npc = NPC(npc_name, room_data['id'], npc_id, dialogue_id, dialogue_starting_node)
             npcs[npc_id] = npc
         return npcs
     

@@ -7,8 +7,9 @@
     <script src="{{ url_for('static', filename='js/item.js') }}"></script>
     <script src="{{ url_for('static', filename='js/resources.js') }}"></script>
     <script src="{{ url_for('static', filename='js/inventory.js') }}"></script>
-
-    <script src="{{ url_for('static', filename='js/room.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dialogues.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/room.js') }}"></script>   
+    <script src="{{ url_for('static', filename='js/npc.js') }}"></script>
 
 
 </head>
@@ -43,5 +44,6 @@
         </div>
     </div>
     {% include 'inventory_modal.html' %}
+    {% include 'dialogue_modal.html' %}
 </body>
 </html>

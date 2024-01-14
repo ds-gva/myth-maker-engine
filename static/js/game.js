@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 });
 
 function updateResources() {
+    fetchAndUpdateResources();
     // Fetch the resources data and update the resources tab
 }
 

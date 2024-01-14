@@ -1,25 +1,4 @@
-function createInteractiveItemHtml(itemId, itemData) {
-    return `<span class="interactive-item inline-block px-2 bg-blue-500 text-white font-bold rounded-full cursor-pointer" data-item-id="${itemId}">${itemData.name}</span>`;
-}
-
-function createNpcHtml(npcId, npcData) {
-    return `<span class="npc cursor-pointer text-blue-600 border-b-2 border-dotted border-blue-600 font-bold" data-npc-id="${npcId}">${npcData.name}</span>`;
-}
-
-function createResourceHtml(tag, components) {
-    var resourceId = components[1];
-    var quantity = components[2];
-    var text = components[3];
-    var stateChange = components[4];
-    return `<span class="resource-item underline underline-offset-4 text-amber-700 font-bold cursor-pointer" data-resource-id="${resourceId}" data-quantity="${quantity}" data-state="${stateChange}">${quantity} ${text}</span>`;
-}
-
-function createDroppedItemHtml(droppedItemId, droppedItemData) {
-    return `<span class="interactive-item inline-block px-2 bg-blue-500 text-white font-bold rounded-full cursor-pointer" data-item-id="${droppedItemId}">${droppedItemData.name}</span>`;
-}
-
 function getRoomDescription(roomId) {
-    console.log(roomId)
     fetch('/get_room_description/' + roomId, { method: 'POST' })
         .then(response => response.json())
         .then(data => {
@@ -64,10 +43,25 @@ function getRoomDescription(roomId) {
             document.querySelectorAll('.resource-item').forEach(resource => {
                 resource.addEventListener('click', () => pickUpResrouces(resource.dataset.resourceId, resource.dataset.quantity, roomId, resource.dataset.state));
             });
+
+               document.querySelectorAll('[data-npc-id]').forEach(npcElement => {
+                npcElement.addEventListener('click', function() {
+                    var npcId = npcElement.getAttribute('data-npc-id');
+                    fetch('/dialogues/start_npc/' + roomId + '/' + npcId)
+                        .then(response => response.json())
+                        .then(data => {
+                            displayDialogue(data.dialogue_id, data.dialogue, npcId);
+                        });
+            });
+    });
         });
+
+        
 }
 
 window.onload = function() {
     var roomId = document.querySelector('div[data-room-id]').dataset.roomId;
     getRoomDescription(roomId);
+    fetchAndUpdateResources();
+    fetchAndUpdateInventory();
 }

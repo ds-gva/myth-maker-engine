@@ -1,3 +1,11 @@
+function createInteractiveItemHtml(itemId, itemData) {
+    return `<span class="interactive-item inline-block px-2 bg-blue-500 text-white font-bold rounded-full cursor-pointer" data-item-id="${itemId}">${itemData.name}</span>`;
+}
+
+function createDroppedItemHtml(droppedItemId, droppedItemData) {
+    return `<span class="interactive-item inline-block px-2 bg-blue-500 text-white font-bold rounded-full cursor-pointer" data-item-id="${droppedItemId}">${droppedItemData.name}</span>`;
+}
+
 function updateInventory(items, capacity) {
     var inventoryItemsElement = document.getElementById('inventory-items');
     inventoryItemsElement.innerHTML = '';
